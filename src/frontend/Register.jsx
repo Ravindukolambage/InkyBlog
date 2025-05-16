@@ -51,6 +51,7 @@ const Register = () => {
                     type="text"
                     name="name"
                     placeholder="Enter Username"
+                    autoComplete="off"
                     className="rounded-md p-1 border-1 outline-none focus:border-cyan-400 focus:bg-slate-50 w-75 h-9 text-base"
                   />
                   {errors.name && touched.name && (
@@ -68,6 +69,7 @@ const Register = () => {
                     type="email"
                     name="email"
                     placeholder="Enter Email"
+                    autoComplete="off"
                     className="rounded-md p-1 border-1 outline-none focus:border-cyan-400 focus:bg-slate-50 w-75 h-9 text-base"
                   />
                   {errors.email && touched.email && (
@@ -85,6 +87,7 @@ const Register = () => {
                     type="password"
                     name="password"
                     placeholder="Enter Password"
+                    autoComplete="new-password"
                     className="rounded-md p-1 border-1 outline-none focus:border-cyan-400 focus:bg-slate-50 w-75 h-9 text-base"
                   />
                   {errors.password && touched.password && (
@@ -102,6 +105,7 @@ const Register = () => {
                     type="password"
                     name="conPassword"
                     placeholder="Enter Confirm Password"
+                    autoComplete="new-password"
                     className="rounded-md p-1 border-1 outline-none focus:border-cyan-400 focus:bg-slate-50 w-75 h-9 text-base"
                   />
                   {errors.conPassword && touched.conPassword && (

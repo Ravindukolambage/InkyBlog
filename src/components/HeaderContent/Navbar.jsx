@@ -16,7 +16,20 @@ const Navbar = () => {
   const menuRef = useRef(null);
   const location = useLocation();
 
+  const [username, setUsername] = useState(null);
+
   useEffect(() => {
+
+    const loadProfile = () => {
+      const storedUsername = localStorage.getItem("name");
+
+      if (storedUsername) {
+        setUsername(storedUsername);
+      }
+    };
+
+    loadProfile();
+
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsMenuOpen(false);
@@ -68,12 +81,12 @@ const Navbar = () => {
             </li>
             <li
               className={`p-1.5 rounded-md transition-all cursor-pointer ${
-                location.pathname === "/About"
+                location.pathname === "/MyBlogs"
                   ? "bg-slate-900 text-white"
                   : "hover:bg-slate-900 hover:text-white"
               }`}
             >
-              <Link to="/About">About</Link>
+              <Link to="/MyBlogs">My Blogs</Link>
             </li>
           </ul>
 
@@ -118,10 +131,10 @@ const Navbar = () => {
               Create Blog
             </Link>
             <Link
-              to="/About"
+              to="/MyBlogs"
               className="list-none w-full text-center p-4 hover:bg-slate-500 hover:text-white transition-all cursor-pointer"
             >
-              About
+              My Blogs
             </Link>
           </div>
         </header>

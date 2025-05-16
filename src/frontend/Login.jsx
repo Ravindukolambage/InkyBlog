@@ -20,13 +20,24 @@ const Login = () => {
           try {
             const response = await axios.post(
               "http://localhost:8081/api/login",
-              values
+              {
+                email: values.email,
+                password: values.password,
+              }
             );
+
+            const { userId, username, email } = response.data;
+
+            // Save to localStorage
+            localStorage.setItem("userId", userId);
+            localStorage.setItem("name", username); // this is the correct one from backend
+            localStorage.setItem("email", email);
+
             if (response.status === 200) {
               toast.success("Login Successful");
-              setTimeout(()=>{
-                navigate('/home');
-              },900);
+              setTimeout(() => {
+                navigate("/home");
+              }, 900);
             }
           } catch (error) {
             if (error.response?.status === 401) {

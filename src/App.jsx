@@ -3,7 +3,8 @@ import Login from "./frontend/Login";
 import Register from "./frontend/Register";
 import Home from "./frontend/Home";
 import CreateBlog from "./frontend/CreateBlog";
-import About from "./frontend/About";
+import MyBlogs from "./frontend/MyBlogs";
+import UpdateBlogPost from "./frontend/updateBlog";
 
 function App() {
   return (
@@ -15,7 +16,8 @@ function App() {
           <Route path="/Login" element={<Login />}></Route>
           <Route path="/Home" element={<Home />}></Route>
           <Route path="/CreateBlog" element={<CreateBlog />}></Route>
-          <Route path="/About" element={<About />}></Route>
+          <Route path="/MyBlogs" element={<MyBlogs />}></Route>
+          <Route path="/updateBlog/:blogId" element={<UpdateBlogPost />} />
         </Routes>
       </BrowserRouter>
     </>

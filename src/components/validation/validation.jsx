@@ -2,7 +2,11 @@ import * as Yup from 'yup'
 
 export const signupValidation = Yup.object({
     name: Yup.string().required('*please enter name'),
-    email: Yup.string().email('*please enter valid email').required('*please enter valid email'),
+    email: Yup.string()
+    .email('*please enter valid email')
+    .required('*please enter valid email')
+    .matches(/^[a-zA-Z0-9._%+-]+@gmail\.com$/, '*please enter valid email'),
+
     password: Yup.string()
     .min(8)
     .required('*please enter password')
