@@ -5,6 +5,7 @@ import Home from "./frontend/Home";
 import CreateBlog from "./frontend/CreateBlog";
 import MyBlogs from "./frontend/MyBlogs";
 import UpdateBlogPost from "./frontend/updateBlog";
+import ProfileEditCard from "./components/ProfileCard/ProfileEditCard";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/CreateBlog" element={<CreateBlog />}></Route>
           <Route path="/MyBlogs" element={<MyBlogs />}></Route>
           <Route path="/updateBlog/:blogId" element={<UpdateBlogPost />} />
+          <Route path="/ProfileEditCard" element={<ProfileEditCard />} />
         </Routes>
       </BrowserRouter>
     </>

@@ -59,39 +59,6 @@ app.post("/api/register", (req, res) => {
   });
 });
 
-app.post("/api/author", upload.single("authorPic"), (req, res) => {
-  const { authorName, authorDOB } = req.body;
-  const authorPic = req.file ? req.file.filename : null;
-
-  if (!authorName || !authorDOB || !authorPic) {
-    return res.status(400).json({ message: "Missing fields" });
-  }
-
-  const checkSql = "SELECT * FROM author WHERE authorName = ?";
-  db.query(checkSql, [authorName], (err, result) => {
-    if (err) {
-      console.error("Database error:", err);
-      return res.status(500).json({ message: "Database error" });
-    }
-
-    if (result.length > 0) {
-      return res
-        .status(409)
-        .json({ message: "Author with this name already exists" });
-    }
-
-    const insertSql =
-      "INSERT INTO author (authorName, authorDOB, authorPic) VALUES (?, ?, ?)";
-    db.query(insertSql, [authorName, authorDOB, authorPic], (err, result) => {
-      if (err) {
-        console.error("Database error:", err);
-        return res.status(500).json({ message: "Database error" });
-      }
-
-      res.status(200).json({ message: "Author added successfully" });
-    });
-  });
-});
 
 app.post("/api/login", (req, res) => {
   const { email, password } = req.body;
@@ -112,6 +79,76 @@ app.post("/api/login", (req, res) => {
   });
 });
 
+const fs = require("fs");
+app.put("/api/profile/update", upload.single("authorPic"), (req, res) => {
+  const { authorId, name, email } = req.body;
+  const file = req.file;
+
+  if (!authorId) {
+    return res.status(400).json({ message: "authorId is required" });
+  }
+
+  if (!file && !name && !email) {
+    return res.status(400).json({ message: "No data to update" });
+  }
+
+  let newFilename = null;
+
+  if (file) {
+    const ext = path.extname(file.originalname); 
+    newFilename = `${authorId}${ext}`;
+    const oldPath = file.path;
+    const newPath = path.join(__dirname, "uploads", newFilename);
+
+    if (fs.existsSync(newPath)) {
+      try {
+        fs.unlinkSync(newPath);
+      } catch (err) {
+        console.error("Failed to delete old profile pic:", err);
+      }
+    }
+
+    try {
+      fs.renameSync(oldPath, newPath);
+    } catch (err) {
+      console.error("File rename failed:", err);
+      return res.status(500).json({ message: "File processing error" });
+    }
+  }
+
+  const updateFields = [];
+  const params = [];
+
+  if (newFilename) {
+    updateFields.push("authorPic = ?");
+    params.push(newFilename);
+  }
+  if (name) {
+    updateFields.push("name = ?");
+    params.push(name);
+  }
+  if (email) {
+    updateFields.push("email = ?");
+    params.push(email);
+  }
+
+  const sql = `UPDATE author SET ${updateFields.join(", ")} WHERE authorId = ?`;
+  params.push(authorId);
+
+  db.query(sql, params, (err, result) => {
+    if (err) {
+      console.error("Profile update failed:", err);
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      filename: newFilename,
+    });
+  });
+});
+
+
 
 
 app.post("/api/createBlog", upload.single("blogImage"), (req, res) => {
@@ -125,7 +162,7 @@ app.post("/api/createBlog", upload.single("blogImage"), (req, res) => {
   const cleanBlogContent = String(blogContent).replace(/<[^>]*>/g, "");
 
   const insertSql =
-    "INSERT INTO postdetails (blogTitle, blogDate, blogCategory, blogContent, blogImage, registerId) VALUES (?, ?, ?, ?, ?, ?)";
+    "INSERT INTO postDetails (blogTitle, blogDate, blogCategory, blogContent, blogImage, registerId) VALUES (?, ?, ?, ?, ?, ?)";
 
   db.query(
     insertSql,

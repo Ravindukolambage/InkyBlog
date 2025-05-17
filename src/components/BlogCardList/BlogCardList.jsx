@@ -1,18 +1,9 @@
-import React, { Fragment, useEffect, useState } from "react";
-import axios from "axios";
+import React, { Fragment, useState } from "react";
 import PostModal from "../PostModal/PostModal";
 
-const BlogCardList = () => {
-  const [blogs, setBlogs] = useState([]);
+const BlogCardList = ({ blogs }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState(null);
-
-  useEffect(() => {
-    axios
-      .get("http://localhost:8081/api/blogs")
-      .then((res) => setBlogs(res.data))
-      .catch((err) => console.error(err));
-  }, []);
 
   return (
     <Fragment>
@@ -54,11 +45,13 @@ const BlogCardList = () => {
           ))}
         </div>
       </div>
-      <PostModal
-        isVisible={showModal}
-        onClose={() => setShowModal(false)}
-        blog={selectedBlog}
-      />
+      {showModal && (
+        <PostModal
+          isVisible={showModal}
+          onClose={() => setShowModal(false)}
+          blog={selectedBlog}
+        />
+      )}
     </Fragment>
   );
 };

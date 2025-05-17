@@ -17,9 +17,12 @@ const ProfileEditCard = ({ isVisible, onClose }) => {
       initialValues={initialValues}
       onSubmit={(values, actions) => {
         const formData = new FormData();
+        const userId = localStorage.getItem("userId");
+
         formData.append("authorName", values.authorName);
         formData.append("authorDOB", values.authorDOB);
         formData.append("authorPic", values.authorPic);
+        formData.append("registerId", userId);
 
         axios
           .post("http://localhost:8081/api/author", formData, {
@@ -27,9 +30,7 @@ const ProfileEditCard = ({ isVisible, onClose }) => {
           })
           .then((res) => {
             toast.success("Profile created successfully");
-            console.log("Success:", res.data);
             actions.resetForm();
-            onClose();
           })
           .catch((err) => {
             console.error(err);

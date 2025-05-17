@@ -28,9 +28,8 @@ const Login = () => {
 
             const { userId, username, email } = response.data;
 
-            // Save to localStorage
             localStorage.setItem("userId", userId);
-            localStorage.setItem("name", username); // this is the correct one from backend
+            localStorage.setItem("name", username);
             localStorage.setItem("email", email);
 
             if (response.status === 200) {
