@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import Navbar from "../components/HeaderContent/Navbar";
 import TextEditor from "../components/TextEditor/TextEditor";
 import { ToastContainer, toast } from "react-toastify";
 import { Formik, Form, Field } from "formik";
 import { useNavigate } from "react-router-dom";
 
-const UpdateBlogPost = () => {
+const AdminUpdateBlogPost = () => {
   const { blogId } = useParams();
   const [blogData, setBlogData] = useState(null);
   const [registerId, setRegisterId] = useState(null);
@@ -16,42 +15,46 @@ const UpdateBlogPost = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    if (userId) {
-      setRegisterId(userId);
-    } else {
-      toast.error("Please log in first");
-    }
+  const userId = localStorage.getItem("userId");
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
 
-    if (blogId && userId) {
-      axios
-        .get(`http://localhost:8081/api/userBlogs/${userId}`)
-        .then((res) => {
-          const blog = res.data.find((b) => b.blogId === parseInt(blogId));
-          if (blog) {
-            setBlogData(blog);
-            setImagePreview(`http://localhost:8081/uploads/${blog.blogImage}`);
-          } else {
-            toast.error("Blog not found");
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-          toast.error("Failed to load blog");
-        });
-    }
-  }, [blogId]);
+  if (!userId) {
+    toast.error("Please log in first");
+    return;
+  }
+
+  setRegisterId(userId);
+
+  const url = isAdmin
+    ? "http://localhost:8081/api/userBlogs/all?isAdmin=true"
+    : `http://localhost:8081/api/userBlogs/${userId}`;
+
+  axios
+    .get(url)
+    .then((res) => {
+      const blog = isAdmin
+        ? res.data.find((b) => b.blogId === parseInt(blogId))
+        : res.data.find((b) => b.blogId === parseInt(blogId));
+
+      if (blog) {
+        setBlogData(blog);
+        setImagePreview(`http://localhost:8081/uploads/${blog.blogImage}`);
+      } else {
+        toast.error("Blog not found");
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      toast.error("Failed to load blog");
+    });
+}, [blogId]);
 
   if (!blogData) {
-    return <div className="text-white text-center mt-10">Loading blog...</div>;
+    return <div className="text-black text-center mt-10">Loading blog...</div>;
   }
 
   return (
     <div className="w-full min-h-screen bg-slate-950 text-white">
-      <div className="fixed top-0 left-0 w-full z-20">
-        <Navbar />
-      </div>
-
       <div className="flex flex-col items-center justify-start pt-28 px-4 sm:px-6 lg:px-20 xl:px-40 pb-10">
         <div className="w-full max-w-4xl bg-slate-100 text-black p-8 rounded-2xl shadow-lg">
           <h1 className="text-2xl md:text-3xl font-semibold mb-6 text-center">
@@ -77,7 +80,7 @@ const UpdateBlogPost = () => {
               formData.append("blogTitle", values.blogTitle);
               formData.append("blogDate", values.blogDate);
               formData.append("blogCategory", values.blogCategory);
-              formData.append("blogContent", stripHtml(values.blogContent)); 
+              formData.append("blogContent", stripHtml(values.blogContent));
 
               if (values.blogImage) {
                 formData.append("image", values.blogImage);
@@ -94,7 +97,7 @@ const UpdateBlogPost = () => {
                 .then(() => {
                   toast.success("Blog updated successfully");
                   setTimeout(() => {
-                    navigate("/myBlogs");
+                    navigate("/admin/dashboard");
                   }, 900);
                 })
                 .catch((err) => {
@@ -132,7 +135,7 @@ const UpdateBlogPost = () => {
 
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Upload New Image (Optional)
+                    Upload New Image
                   </label>
                   <div className="flex items-center gap-6">
                     <div className="flex items-center">
@@ -207,4 +210,4 @@ const UpdateBlogPost = () => {
   );
 };
 
-export default UpdateBlogPost;
+export default AdminUpdateBlogPost;

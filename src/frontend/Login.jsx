@@ -26,13 +26,20 @@ const Login = () => {
               }
             );
 
-            const { userId, username, email } = response.data;
+            const { isAdmin, userId, username, email } = response.data;
 
-            localStorage.setItem("userId", userId);
-            localStorage.setItem("name", username);
-            localStorage.setItem("email", email);
+            if (isAdmin) {
+              localStorage.setItem("isAdmin", "true");
+              toast.success("Admin Login Successful");
+              setTimeout(() => {
+                navigate("/admin/dashboard");
+              }, 900);
+            } else {
+              localStorage.setItem("isAdmin", "false");
+              localStorage.setItem("userId", userId);
+              localStorage.setItem("name", username);
+              localStorage.setItem("email", email);
 
-            if (response.status === 200) {
               toast.success("Login Successful");
               setTimeout(() => {
                 navigate("/home");
@@ -50,7 +57,7 @@ const Login = () => {
         {({ errors, touched }) => (
           <div className="flex shadow-2xl">
             <Form>
-              <div className="flex flex-col items-center justify-center text-center w-[450px] h-[650px] p-12 gap-4 bg-white rounded-2xl xl:rounded-tr-none xl:rounded-br-none ">
+              <div className="flex flex-col items-center justify-center text-center w-[450px] h-[650px] p-12 gap-4 bg-white rounded-2xl xl:rounded-tr-none xl:rounded-br-none">
                 <h1 className="text-4xl font-serif font-bold">
                   Welcome to InkyBlog
                 </h1>

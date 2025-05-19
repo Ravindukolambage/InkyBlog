@@ -38,9 +38,11 @@ const BlogCardList = ({ blogs }) => {
               <p className="text-gray-300 text-sm line-clamp-3 text-justify leading-relaxed">
                 {blog.blogContent}
               </p>
-              <button className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-all cursor-pointer">
-                Read More...
-              </button>
+              <div className="flex justify-start mt-4">
+                <button className="mt-4 px-4 py-2 relative  bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-all cursor-pointer">
+                  Read More...
+                </button>
+              </div>
             </div>
           ))}
         </div>

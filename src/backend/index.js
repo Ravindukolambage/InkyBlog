@@ -59,9 +59,18 @@ app.post("/api/register", (req, res) => {
   });
 });
 
-
 app.post("/api/login", (req, res) => {
   const { email, password } = req.body;
+
+  const adminEmail = "admin@inkyblog.com";
+  const adminPassword = "Admin#@123";
+
+  if (email === adminEmail && password === adminPassword) {
+    return res.status(200).json({
+      message: "Admin login successful",
+      isAdmin: true,
+    });
+  }
 
   const sql = "SELECT * FROM register WHERE email = ? AND password = ?";
   db.query(sql, [email, password], (err, result) => {
@@ -69,10 +78,11 @@ app.post("/api/login", (req, res) => {
     if (result.length > 0) {
       const user = result[0];
       return res.status(200).json({
-       message: 'Login success',
+        message: "Login successful",
+        isAdmin: false,
         userId: user.id,
         username: user.name,
-        email: user.email  
+        email: user.email,
       });
     }
     return res.status(401).json({ message: "Invalid credentials" });
@@ -95,7 +105,7 @@ app.put("/api/profile/update", upload.single("authorPic"), (req, res) => {
   let newFilename = null;
 
   if (file) {
-    const ext = path.extname(file.originalname); 
+    const ext = path.extname(file.originalname);
     newFilename = `${authorId}${ext}`;
     const oldPath = file.path;
     const newPath = path.join(__dirname, "uploads", newFilename);
@@ -148,11 +158,9 @@ app.put("/api/profile/update", upload.single("authorPic"), (req, res) => {
   });
 });
 
-
-
-
 app.post("/api/createBlog", upload.single("blogImage"), (req, res) => {
-  const { blogTitle, blogDate, blogCategory, blogContent, registerId } = req.body;
+  const { blogTitle, blogDate, blogCategory, blogContent, registerId } =
+    req.body;
   const blogImage = req.file ? req.file.filename : null;
 
   if (!blogTitle || !blogDate || !blogCategory || !blogContent || !registerId) {
@@ -166,7 +174,14 @@ app.post("/api/createBlog", upload.single("blogImage"), (req, res) => {
 
   db.query(
     insertSql,
-    [blogTitle, blogDate, blogCategory, cleanBlogContent, blogImage, registerId],
+    [
+      blogTitle,
+      blogDate,
+      blogCategory,
+      cleanBlogContent,
+      blogImage,
+      registerId,
+    ],
     (err, result) => {
       if (err) {
         console.error("Database error:", err);
@@ -183,16 +198,20 @@ app.post("/api/createBlog", upload.single("blogImage"), (req, res) => {
 });
 
 app.get("/api/userBlogs/:userId", (req, res) => {
-  const userId = req.params.userId;
-  const sql = "SELECT * FROM postDetails WHERE registerId = ? ORDER BY blogDate DESC";
+  const { userId } = req.params;
+  const isAdmin = req.query.isAdmin === "true";
 
-  db.query(sql, [userId], (err, result) => {
+  const sql = isAdmin
+    ? "SELECT * FROM postDetails ORDER BY blogDate DESC"
+    : "SELECT * FROM postDetails WHERE registerId = ? ORDER BY blogDate DESC";
+
+  const params = isAdmin ? [] : [userId];
+
+  db.query(sql, params, (err, result) => {
     if (err) return res.status(500).json({ message: "Database error" });
     res.status(200).json(result);
   });
 });
-
-
 
 app.get("/api/blogs", (req, res) => {
   const sql = "SELECT * FROM postDetails ORDER BY blogDate DESC";
@@ -202,31 +221,34 @@ app.get("/api/blogs", (req, res) => {
   });
 });
 
-app.put('/api/userBlogsList/:id', upload.single('image'), (req, res) => {
+app.put("/api/userBlogsList/:id", upload.single("image"), (req, res) => {
   const blogId = req.params.id;
-  const { blogTitle, blogDate, blogCategory, blogContent} = req.body;
+  const { blogTitle, blogDate, blogCategory, blogContent } = req.body;
   const image = req.file ? req.file.filename : null;
 
   const sql = image
     ? "UPDATE postDetails SET blogTitle = ?, blogDate = ?,  blogCategory = ?, blogContent = ?, blogImage = ? WHERE blogId = ?"
-    : "UPDATE postDetails SET blogTitle = ?, blogDate = ?, blogCategory = ?, blogContent = ?  WHERE blogId = ?";
+    : "UPDATE postDetails SET blogTitle = ?, blogDate = ?, blogCategory = ?, blogContent = ? WHERE blogId = ?";
 
   const params = image
     ? [blogTitle, blogDate, blogCategory, blogContent, image, blogId]
     : [blogTitle, blogDate, blogCategory, blogContent, blogId];
 
   db.query(sql, params, (err, result) => {
-    if (err) return res.status(500).json({ message: "Update failed", error: err });
+    if (err)
+      return res.status(500).json({ message: "Update failed", error: err });
     res.status(200).json({ message: "Blog updated successfully" });
   });
 });
 
-app.delete('/api/userBlogsList/:id', (req, res) => {
+
+app.delete("/api/userBlogsList/:id", (req, res) => {
   const blogId = req.params.id;
   const sql = "DELETE FROM postDetails WHERE blogId = ?";
 
   db.query(sql, [blogId], (err, result) => {
-    if (err) return res.status(500).json({ message: "Delete failed", error: err });
+    if (err)
+      return res.status(500).json({ message: "Delete failed", error: err });
     res.status(200).json({ message: "Blog deleted successfully" });
   });
 });

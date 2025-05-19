@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { MdOutlineClose } from "react-icons/md";
 import { FaCamera } from "react-icons/fa";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 
 const ProfileCard = ({ isVisible, onClose }) => {
   if (!isVisible) return null;
@@ -59,7 +60,7 @@ const ProfileCard = ({ isVisible, onClose }) => {
     localStorage.setItem("email", email);
 
     setIsEditing(false);
-    alert("Profile updated");
+    toast.success("Profile updated");
   };
 
   const imageSrc = previewImage
@@ -155,6 +156,16 @@ const ProfileCard = ({ isVisible, onClose }) => {
             </button>
           )}
         </div>
+        <ToastContainer
+          position="top-center"
+          autoClose={1000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          draggable
+          theme="dark"
+        />
       </div>
     </div>
   );
